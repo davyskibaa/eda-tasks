@@ -4,6 +4,57 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv('shopping_trends.csv')
 
+# Задание 1.1
+# Гипотеза 1. Мужчины предпочитают покупать товары с большими размерами
+men_customers = df[df['Gender'] == 'Male']
+size_counts = men_customers['Size'].value_counts()
+print(size_counts)
+
+# Гипотеза 2. Вещи оранжевого, красного и желтого цвета чаще покупают осенью
+items = df[df['Color'].isin(['Orange', 'Red', 'Yellow'])]
+season_counts = items['Season'].value_counts()
+season_percentage = (season_counts / season_counts.sum()) * 100
+print(season_percentage)
+
+# Гипотеза 3. Вещи, купленные по скидке, имеют меньший рейтинг
+discounted_items = df[df['Discount Applied'] == 'Yes']
+avg_rating_discounted = discounted_items['Review Rating'].mean()
+non_discounted_items = df[df['Discount Applied'] == 'No']
+avg_rating_non_discounted = non_discounted_items['Review Rating'].mean()
+
+print(f"Средний рейтинг товаров с скидкой: {avg_rating_discounted:.2f}")
+print(f"Средний рейтинг товаров без скидки: {avg_rating_non_discounted:.2f}")
+
+# Гипотеза 4. Женщины покупают аксессуары чаще мужчин
+women_data = df[df['Gender'] == 'Female']
+women_accessories = women_data[women_data['Category'] == 'Accessories']
+women_accessories_count = len(women_accessories)
+women_total_count = len(women_data)
+women_accessories_percentage = (women_accessories_count / women_total_count) * 100
+
+men_data = df[df['Gender'] == 'Male']
+men_accessories = men_data[men_data['Category'] == 'Accessories']
+men_accessories_count = len(men_accessories)
+men_total_count = len(men_data)
+men_accessories_percentage = (men_accessories_count / men_total_count) * 100
+
+print(f"Доля покупок аксессуаров среди женщин: {women_accessories_percentage:.2f}%")
+print(f"Доля покупок аксессуаров среди мужчин: {men_accessories_percentage:.2f}%")
+
+# Гипотеза 5. Покупатели, имеющие статус подписки, чаще делают еженедельные покупки
+subscribed = df[df['Subscription Status'] == 'Yes']
+subscribed_count = len(subscribed)
+non_subscribed = df[df['Subscription Status'] == 'No']
+non_subscribed_count = len(non_subscribed)
+subscribed_frequency = subscribed['Frequency of Purchases'].value_counts(normalize=True)
+non_subscribed_frequency = non_subscribed['Frequency of Purchases'].value_counts(normalize=True)
+subscribed_weekly = subscribed_frequency.get('Weekly', 0)
+non_subscribed_weekly = non_subscribed_frequency.get('Weekly', 0)
+
+print(f"\nДоля покупателей с подпиской, делающих покупки еженедельно: {subscribed_weekly:.2f}")
+print(f"Доля покупателей без подписки, делающих покупки еженедельно: {non_subscribed_weekly:.2f}")
+
+# Задание 1.2
 # самый популярный товар
 most_popular_item = df['Item Purchased'].value_counts().idxmax()
 print(f"Самый популярный товар: {most_popular_item}")
@@ -44,6 +95,14 @@ print(f"Пол, который покупает самые дорогие тов
 average_purchase_by_age = df.groupby('Age')['Purchase Amount (USD)'].mean()
 max_average_purchase_age = average_purchase_by_age.idxmax()
 print(f"Возраст, который покупает самые дорогие товары: {max_average_purchase_age}")
+
+# зависимость между цветом одежды и сезоном
+color_season_distribution = pd.crosstab(df['Season'], df['Color'])
+color_season_distribution.plot(kind='bar', stacked=True, figsize=(10, 6))
+plt.title('Зависимость между цветом одежды и сезоном')
+plt.xlabel('Сезон')
+plt.ylabel('Количество покупок')
+plt.show()
 
 # сезонный mau (уникальных пользователей за сезон) и его динамика
 seasonal_mau = df.groupby('Season')['Customer ID'].nunique()
